@@ -1,6 +1,6 @@
 from app.models.qdrant_model import TOP_K
 
-def reciprocal_rank_fusion(dense_results: list, sparse_results: list) -> list:
+def reciprocal_rank_fusion(dense_results: list, sparse_results: list) -> list[str]:
     combined_results = []
     k = 60
 
@@ -37,7 +37,9 @@ def reciprocal_rank_fusion(dense_results: list, sparse_results: list) -> list:
         else:
             fused_results[point_id]["rrf_score"] += item["rrf_score"]
 
-    #sort the dict of point_ids based on rrf_score and return the list of dict_values ranked
+    #this returns a list of dict[point,rrf_score] first we take the values from the fused_results 
+    #dict which is dict too & then we pass each dict object into lambda as an argument & return 
+    # rrf score from it and we use this score as a key to sort this list in descending
     ranked_results = sorted(
         fused_results.values(),
         key=lambda item: item["rrf_score"],
@@ -47,12 +49,9 @@ def reciprocal_rank_fusion(dense_results: list, sparse_results: list) -> list:
     #return top k ranked dict_values
     top_k_points = ranked_results[:TOP_K]
 
-    content_chunks = []
-
-    #get the point object's payload text and append it to a list
-    for item in top_k_points:
-        point = item["point"]
-        content = point.payload["text"]
-        content_chunks.append(content)
+    content_chunks = [
+    item["point"].payload["text"]
+    for item in top_k_points
+    ]
 
     return content_chunks

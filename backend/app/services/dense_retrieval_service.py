@@ -1,7 +1,6 @@
 from qdrant_client import models
 from app.models.qdrant_model import client, COLLECTION_NAME, DENSE_VECTOR_NAME, TOP_K
 
-
 def retrieve_dense_chunks(
     dense_vector: list[float],
     source: str,
@@ -23,4 +22,6 @@ def retrieve_dense_chunks(
         with_payload=True,
     )
 
-    return results.points
+    points = results.points
+
+    return points

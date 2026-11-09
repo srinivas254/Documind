@@ -22,7 +22,7 @@ async def process_document(file: UploadFile) -> list[dict]:
     extension = Path(file.filename).suffix.lower()
 
     if extension not in SUPPORTED_EXTENSIONS:
-        raise InvalidUploadExceptionException(400, "Unsupported file type")
+        raise InvalidUploadException(400, "Unsupported file type")
 
     temp_path = None
     
@@ -59,7 +59,13 @@ async def process_document(file: UploadFile) -> list[dict]:
             loader = TextLoader(str(temp_path),encoding="utf-8")
 
         # Extract document content
-        documents = loader.load()
+        try:
+            documents = loader.load()
+
+        except Exception as exc:
+            raise InvalidUploadException(
+                422, "Unable to process uploaded document"
+            ) from exc
 
         if not documents:
             raise InvalidUploadException(
@@ -73,6 +79,7 @@ async def process_document(file: UploadFile) -> list[dict]:
                 "metadata": {
                     **doc.metadata,
                     "source": file.filename,
+                    "filetype": file.filename.split(".")[-1].lower(),
                 },
             }
             for doc in documents
@@ -87,14 +94,3 @@ async def process_document(file: UploadFile) -> list[dict]:
         await file.close()
 
         
-
-        
-
-
-
-
-
-    
-
-
-

@@ -3,7 +3,6 @@ from qdrant_client import models
 from app.models.qdrant_model import client, COLLECTION_NAME, SPARSE_VECTOR_NAME, TOP_K
 from fastembed import SparseEmbedding
 
-
 def retrieve_sparse_chunks(
     sparse_vector: SparseEmbedding,
     source: str
@@ -27,4 +26,6 @@ def retrieve_sparse_chunks(
         with_payload=True,
     )
 
-    return results.points
+    points = results.points
+
+    return points
